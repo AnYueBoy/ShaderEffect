@@ -5,6 +5,7 @@ Shader "Unlit/OutLine"
         _MainTex ("Texture", 2D) = "white" {}
         _OutlineColor("OutlineColor",Color) = (1,1,1,1)
         _OutlineWidth("OutlineWidth",Range(0,5))=1
+        [Toggle] _OutlineOnly("Outline Only",Range(0,1)) =0
     }
     SubShader
     {
@@ -27,11 +28,12 @@ Shader "Unlit/OutLine"
             float4 _MainTex_ST;
             fixed4 _OutlineColor;
             fixed _OutlineWidth;
+            fixed _OutlineOnly;
 
             fixed4 frag(VertexOutput i) : SV_Target
             {
                 fixed4 col = tex2D(_MainTex, i.uv);
-                if(_OutlineWidth == 0)
+                if (_OutlineWidth == 0)
                 {
                     return col;
                 }
@@ -43,6 +45,10 @@ Shader "Unlit/OutLine"
                     tex2D(_MainTex, down_uv).a;
 
                 col.rgb = lerp(_OutlineColor, col.rgb, alpha);
+                if (_OutlineOnly == 1 && alpha != 0)
+                {
+                    col.a = 0;
+                }
                 return col;
             }
             ENDCG
